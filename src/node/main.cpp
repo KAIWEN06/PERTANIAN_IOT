@@ -27,74 +27,78 @@ void receivedCallback(uint32_t from, String &msg)
 
         Serial.println("DATA BERHASIL DITERIMA GATEWAY");
     }
-}
-
-void setup()
-{
-    Serial.begin(9600);
-
-    pinMode(LED_PIN, OUTPUT);
-    digitalWrite(LED_PIN, LOW);
-
-    WiFi.mode(WIFI_STA);
-
-    WiFi.setTxPower(
-        WIFI_POWER_19_5dBm);
-
-    mesh.init(
-        MESH_PREFIX,
-        MESH_PASSWORD,
-        &userScheduler,
-        MESH_PORT);
-
-    mesh.onReceive(
-        receivedCallback);
-
-    randomSeed(
-        analogRead(0));
-
-    Serial.println();
-    Serial.println("NODE AKTIF");
-
-    Serial.print("Mesh ID : ");
-    Serial.println(
-        mesh.getNodeId());
-}
-
-void loop()
-{
-    mesh.update();
-
-    if (
-        millis() - lastSend > 2000)
+    else
     {
-        lastSend = millis();
-
-        int dataSensor =
-            random(0, 1000);
-
-        int rssi =
-            WiFi.RSSI();
-
-        String pesan =
-            "NODE_ID=" +
-            String(mesh.getNodeId()) +
-
-            ",NODE_NAME=" +
-            String(NODE_NAME) +
-
-            ",RSSI=" +
-            String(rssi) +
-            "dBm" +
-
-            ",DATA=" +
-            String(dataSensor);
-
-        mesh.sendBroadcast(
-            pesan);
-
-        Serial.println(
-            "Kirim : " +
-            pesan);
+        digitalWrite(LED_PIN, LOW);
+        Serial.println("DATA GAGAL DITERIMA GATEWAY");
     }
-}
+
+    void setup()
+    {
+        Serial.begin(9600);
+
+        pinMode(LED_PIN, OUTPUT);
+        digitalWrite(LED_PIN, LOW);
+
+        WiFi.mode(WIFI_STA);
+
+        WiFi.setTxPower(
+            WIFI_POWER_19_5dBm);
+
+        mesh.init(
+            MESH_PREFIX,
+            MESH_PASSWORD,
+            &userScheduler,
+            MESH_PORT);
+
+        mesh.onReceive(
+            receivedCallback);
+
+        randomSeed(
+            analogRead(0));
+
+        Serial.println();
+        Serial.println("NODE AKTIF");
+
+        Serial.print("Mesh ID : ");
+        Serial.println(
+            mesh.getNodeId());
+    }
+
+    void loop()
+    {
+        mesh.update();
+
+        if (
+            millis() - lastSend > 2000)
+        {
+            lastSend = millis();
+
+            int dataSensor =
+                random(0, 1000);
+
+            int rssi =
+                WiFi.RSSI();
+
+            String pesan =
+                "NODE_ID=" +
+                String(mesh.getNodeId()) +
+
+                ",NODE_NAME=" +
+                String(NODE_NAME) +
+
+                ",RSSI=" +
+                String(rssi) +
+                "dBm" +
+
+                ",DATA=" +
+                String(dataSensor);
+
+            mesh.sendBroadcast(
+                pesan);
+
+            Serial.println(
+                "Kirim : " +
+                pesan);
+        }
+    }
