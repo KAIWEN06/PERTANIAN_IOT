@@ -21,6 +21,9 @@ void receivedCallback(uint32_t from, String &msg)
     Serial.println(msg);
 
     Serial.println("================================");
+    mesh.sendSingle(
+        from,
+        "ACK");
 }
 
 void newConnectionCallback(uint32_t nodeId)

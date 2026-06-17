@@ -5,6 +5,7 @@
 #define MESH_PORT 5555
 
 #define NODE_NAME "NODE_1"
+#define LED_PIN 2
 
 Scheduler userScheduler;
 painlessMesh mesh;
@@ -17,11 +18,22 @@ void receivedCallback(uint32_t from, String &msg)
     Serial.print(from);
     Serial.print(" : ");
     Serial.println(msg);
+
+    if (msg == "ACK")
+    {
+        ackReceived = true;
+        digitalWrite(LED_PIN, HIGH);
+
+        Serial.println("DATA BERHASIL DITERIMA GATEWAY");
+    }
 }
 
 void setup()
 {
     Serial.begin(9600);
+
+    pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, LOW);
 
     WiFi.mode(WIFI_STA);
 
