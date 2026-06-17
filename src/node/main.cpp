@@ -49,9 +49,12 @@ void loop()
 
         int angka = random(0, 1000);
 
+        int rssi = WiFi.RSSI();
+
         String pesan =
             "NODE_ID=" + String(mesh.getNodeId()) +
             ",NODE_NAME=" + String(NODE_NAME) +
+            ",RSSI=" + String(rssi) + "dBm" +
             ",DATA=" + String(angka);
 
         mesh.sendBroadcast(pesan);
