@@ -1,5 +1,3 @@
-// GATEWAY NODE
-
 #include "painlessMesh.h"
 
 #define MESH_PREFIX "BANANA_MESH"
@@ -13,18 +11,32 @@ painlessMesh mesh;
 
 void receivedCallback(uint32_t from, String &msg)
 {
+    Serial.println();
     Serial.println("================================");
-    Serial.print("Dari Mesh ID : ");
+
+    Serial.print("Mesh ID Node : ");
     Serial.println(from);
 
     Serial.print("Pesan        : ");
     Serial.println(msg);
+
+    Serial.println("================================");
 }
 
 void newConnectionCallback(uint32_t nodeId)
 {
+    Serial.println();
+
     Serial.print("Node Join : ");
     Serial.println(nodeId);
+
+    Serial.print("Jumlah Node : ");
+    Serial.println(mesh.getNodeList().size());
+}
+
+void changedConnectionCallback()
+{
+    Serial.println("Topologi Mesh Berubah");
 }
 
 void setup()
@@ -32,7 +44,9 @@ void setup()
     Serial.begin(9600);
 
     WiFi.mode(WIFI_STA);
-    WiFi.setTxPower(WIFI_POWER_19_5dBm);
+
+    WiFi.setTxPower(
+        WIFI_POWER_19_5dBm);
 
     mesh.init(
         MESH_PREFIX,
@@ -40,12 +54,21 @@ void setup()
         &userScheduler,
         MESH_PORT);
 
-    mesh.onReceive(receivedCallback);
-    mesh.onNewConnection(newConnectionCallback);
+    mesh.onReceive(
+        receivedCallback);
 
-    Serial.println("Gateway Aktif");
+    mesh.onNewConnection(
+        newConnectionCallback);
+
+    mesh.onChangedConnections(
+        changedConnectionCallback);
+
+    Serial.println();
+    Serial.println("GATEWAY AKTIF");
+
     Serial.print("Mesh ID Gateway : ");
-    Serial.println(mesh.getNodeId());
+    Serial.println(
+        mesh.getNodeId());
 }
 
 void loop()

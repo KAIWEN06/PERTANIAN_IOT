@@ -24,7 +24,9 @@ void setup()
     Serial.begin(9600);
 
     WiFi.mode(WIFI_STA);
-    WiFi.setTxPower(WIFI_POWER_19_5dBm);
+
+    WiFi.setTxPower(
+        WIFI_POWER_19_5dBm);
 
     mesh.init(
         MESH_PREFIX,
@@ -32,33 +34,54 @@ void setup()
         &userScheduler,
         MESH_PORT);
 
-    mesh.onReceive(receivedCallback);
+    mesh.onReceive(
+        receivedCallback);
 
-    Serial.println("Node Aktif");
+    randomSeed(
+        analogRead(0));
+
+    Serial.println();
+    Serial.println("NODE AKTIF");
+
     Serial.print("Mesh ID : ");
-    Serial.println(mesh.getNodeId());
+    Serial.println(
+        mesh.getNodeId());
 }
 
 void loop()
 {
     mesh.update();
 
-    if (millis() - lastSend > 2000)
+    if (
+        millis() - lastSend > 2000)
     {
         lastSend = millis();
 
-        int angka = random(0, 1000);
+        int dataSensor =
+            random(0, 1000);
 
-        int rssi = WiFi.RSSI();
+        int rssi =
+            WiFi.RSSI();
 
         String pesan =
-            "NODE_ID=" + String(mesh.getNodeId()) +
-            ",NODE_NAME=" + String(NODE_NAME) +
-            ",RSSI=" + String(rssi) + "dBm" +
-            ",DATA=" + String(angka);
+            "NODE_ID=" +
+            String(mesh.getNodeId()) +
 
-        mesh.sendBroadcast(pesan);
+            ",NODE_NAME=" +
+            String(NODE_NAME) +
 
-        Serial.println("Kirim: " + pesan);
+            ",RSSI=" +
+            String(rssi) +
+            "dBm" +
+
+            ",DATA=" +
+            String(dataSensor);
+
+        mesh.sendBroadcast(
+            pesan);
+
+        Serial.println(
+            "Kirim : " +
+            pesan);
     }
 }
