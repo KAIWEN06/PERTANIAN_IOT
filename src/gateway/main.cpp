@@ -31,6 +31,9 @@ void setup()
 {
     Serial.begin(9600);
 
+    WiFi.mode(WIFI_STA);
+    WiFi.setTxPower(WIFI_POWER_19_5dBm);
+
     mesh.init(
         MESH_PREFIX,
         MESH_PASSWORD,
