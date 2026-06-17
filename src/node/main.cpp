@@ -9,6 +9,7 @@
 
 Scheduler userScheduler;
 painlessMesh mesh;
+bool ackReceived = false;
 
 unsigned long lastSend = 0;
 

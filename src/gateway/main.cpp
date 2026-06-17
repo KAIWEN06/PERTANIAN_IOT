@@ -8,7 +8,7 @@
 
 Scheduler userScheduler;
 painlessMesh mesh;
-
+bool ackReceived = false;
 void receivedCallback(uint32_t from, String &msg)
 {
     Serial.println();
