@@ -3,12 +3,21 @@
 #define MESH_PREFIX "BANANA_MESH"
 #define MESH_PASSWORD "12345678"
 #define MESH_PORT 5555
-#define node_name "gateway"
+
+#define NODE_NAME "NODE_1"
 
 Scheduler userScheduler;
 painlessMesh mesh;
 
 unsigned long lastSend = 0;
+
+void receivedCallback(uint32_t from, String &msg)
+{
+    Serial.print("Dari ");
+    Serial.print(from);
+    Serial.print(" : ");
+    Serial.println(msg);
+}
 
 void setup()
 {
@@ -20,9 +29,11 @@ void setup()
         &userScheduler,
         MESH_PORT);
 
-    randomSeed(analogRead(0));
+    mesh.onReceive(receivedCallback);
 
     Serial.println("Node Aktif");
+    Serial.print("Mesh ID : ");
+    Serial.println(mesh.getNodeId());
 }
 
 void loop()
@@ -36,10 +47,9 @@ void loop()
         int angka = random(0, 1000);
 
         String pesan =
-            "NODE_ID=" +
-            String(mesh.getNodeId()) + "NODE_NAME" + node_name +
-            ",DATA=" +
-            String(angka);
+            "NODE_ID=" + String(mesh.getNodeId()) +
+            ",NODE_NAME=" + String(NODE_NAME) +
+            ",DATA=" + String(angka);
 
         mesh.sendBroadcast(pesan);
 
