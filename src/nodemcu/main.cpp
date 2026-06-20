@@ -1,13 +1,15 @@
 #include <ArduinoJson.h>
-#include <WiFi.h>
-#include "painlessMesh.h"
+#include <ESP8266WiFi.h>
+#include <painlessMesh.h>
 
 #define MESH_PREFIX "BANANA_MESH"
 #define MESH_PASSWORD "12345678"
 #define MESH_PORT 5555
 
-#define NODE_NAME "NODE_1"
-#define LED_PIN 2
+#define NODE_NAME "NODE_3"
+
+// LED bawaan NodeMCU (aktif LOW)
+#define LED_PIN LED_BUILTIN
 
 Scheduler userScheduler;
 painlessMesh mesh;
@@ -58,8 +60,8 @@ void changedConnectionCallback()
     Serial.println("================================");
     Serial.println("TOPOLOGY CHANGED");
     Serial.println("================================");
-    Serial.println(
-        mesh.subConnectionJson());
+
+    Serial.println(mesh.subConnectionJson());
 }
 
 void droppedConnectionCallback(uint32_t nodeId)
@@ -84,16 +86,14 @@ void setup()
     delay(1000);
 
     pinMode(LED_PIN, OUTPUT);
-    digitalWrite(LED_PIN, LOW);
+
+    // LED OFF
+    digitalWrite(LED_PIN, HIGH);
 
     WiFi.mode(WIFI_STA);
 
-    // Penting untuk mesh
-    WiFi.setSleep(false);
-
-    // Power maksimum
-    WiFi.setTxPower(
-        WIFI_POWER_19_5dBm);
+    // Matikan WiFi Sleep ESP8266
+    WiFi.setSleepMode(WIFI_NONE_SLEEP);
 
     mesh.init(
         MESH_PREFIX,
@@ -101,7 +101,7 @@ void setup()
         &userScheduler,
         MESH_PORT);
 
-    // Beritahu node bahwa ada root
+    // Cari root gateway
     mesh.setContainsRoot(true);
 
     mesh.onReceive(
@@ -116,17 +116,15 @@ void setup()
     mesh.onDroppedConnection(
         droppedConnectionCallback);
 
-    randomSeed(
-        millis());
+    randomSeed(micros());
 
     Serial.println();
     Serial.println("================================");
-    Serial.println("NODE START");
+    Serial.println("NODEMCU START");
     Serial.println("================================");
 
     Serial.print("Mesh ID : ");
-    Serial.println(
-        mesh.getNodeId());
+    Serial.println(mesh.getNodeId());
 }
 
 // =====================================================
@@ -143,22 +141,14 @@ void loop()
 
         ackReceived = false;
 
-        int dataSensor =
-            random(0, 1000);
+        int dataSensor = random(0, 1000);
 
         StaticJsonDocument<256> doc;
 
-        doc["nodeId"] =
-            mesh.getNodeId();
-
-        doc["nodeName"] =
-            NODE_NAME;
-
-        doc["sensor"] =
-            dataSensor;
-
-        doc["status"] =
-            "ONLINE";
+        doc["nodeId"] = mesh.getNodeId();
+        doc["nodeName"] = NODE_NAME;
+        doc["sensor"] = dataSensor;
+        doc["status"] = "ONLINE";
 
         String msg;
         serializeJson(doc, msg);
@@ -169,17 +159,14 @@ void loop()
         mesh.sendBroadcast(msg);
     }
 
+    // LED aktif LOW
     if (ledUntil > millis())
     {
-        digitalWrite(
-            LED_PIN,
-            HIGH);
+        digitalWrite(LED_PIN, LOW);
     }
     else
     {
-        digitalWrite(
-            LED_PIN,
-            LOW);
+        digitalWrite(LED_PIN, HIGH);
     }
 
     if (millis() - lastDebug > 10000)
@@ -190,16 +177,13 @@ void loop()
         Serial.println("========== DEBUG ==========");
 
         Serial.print("Free Heap : ");
-        Serial.println(
-            ESP.getFreeHeap());
+        Serial.println(ESP.getFreeHeap());
 
         Serial.print("RSSI : ");
-        Serial.println(
-            WiFi.RSSI());
+        Serial.println(WiFi.RSSI());
 
         Serial.print("ACK Age : ");
-        Serial.println(
-            millis() - lastAck);
+        Serial.println(millis() - lastAck);
 
         Serial.println("===========================");
     }
